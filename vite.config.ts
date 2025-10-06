@@ -1,7 +1,42 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()]
+  plugins: [react(),
+  VitePWA({
+    registerType: 'autoUpdate',
+    manifest: {
+      "name": "Aplicacion Web Progresiva de Mensajes",
+      "short_name": "App Mensajes",
+      "description": "Una aplicacion web progresiva de Mensajeria",
+      "start_url": "/",
+      "display": "standalone",
+      "background_color": "#ffffff",
+      "theme_color": "#0d6efd",
+      "icons": [
+        {
+          "src": "/icons/Icon512x512.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        },
+        {
+          "src": "/icons/Icon256x256.png",
+          "sizes": "256x256",
+          "type": "image/png"
+        },
+        {
+          "src": "/icons/Icon128x128.png",
+          "sizes": "128x128",
+          "type": "image/png"
+        },
+        {
+          "src": "/icons/Icon64x64.png",
+          "sizes": "64x64",
+          "type": "image/png"
+        }
+      ]
+    }
+  })],
 })

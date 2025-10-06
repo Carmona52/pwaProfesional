@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [react(),
   VitePWA({
     registerType: 'autoUpdate',
+    includeAssets: ['favicon.ico', 'robots.txt', 'icons/*.png'],
     manifest: {
       "name": "Aplicacion Web Progresiva de Mensajes",
       "short_name": "App Mensajes",
@@ -36,6 +37,26 @@ export default defineConfig({
           "sizes": "64x64",
           "type": "image/png"
         }
+      ]
+    },
+    workbox:{
+      globPatterns: ['**/*.{js,css,html,png,svg,ico,json}'],
+      runtimeCaching:[
+        {
+          urlPattern: ({ request }) => request.destination === 'document',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'html-cache',
+          },
+        },
+        {
+          urlPattern: ({ request }) => request.destination === 'script' || request.destination === 'style',
+          handler: 'StaleWhileRevalidate',
+          options: {
+            cacheName: 'static-resources',
+          },
+        },
+
       ]
     }
   })],

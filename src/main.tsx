@@ -10,7 +10,7 @@ createRoot(document.getElementById('root')!).render(
 )
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js', { type: 'module' })
+  navigator.serviceWorker.register('/sw.ts', { type: 'module' })
     .then(reg => console.log('SW registrado:', reg))
     .catch(err => console.error('Error registrando SW:', err));
 

@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { messaging } from "../../db/firebase";
 import { getToken, onMessage } from "firebase/messaging";
 
-const VAPID_KEY = import.meta.env.VITE_PUBLIC_VAPID_KEY; // o tu VAPID Key
-const SERVER_KEY = "epk9WUeCbevlM4ON2b77VE:APA91bEgQuvX3IuQ49Br20iuHCE1VPQuCr7XWghh81GElb1UlE7dQEyKUM7N7LM4KdmU0InLm-OaRoQ_R3M7lQik2R51Vy_p_IZEmJRUcgZNAtuYBumAd3Q"; // ⚠️ Solo para pruebas locales
+const VAPID_KEY = import.meta.env.VITE_APIKEY; // o tu VAPID Key
+const SERVER_KEY =import.meta.env.VITE_MESSAGING; // ⚠️ Solo para pruebas locales
 
 export default function Notifications() {
   const [token, setToken] = useState<string | null>(null);

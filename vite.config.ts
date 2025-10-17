@@ -7,7 +7,11 @@ export default defineConfig({
   plugins: [react(),
   VitePWA({
     registerType: 'autoUpdate',
-    includeAssets: ['favicon.ico', 'robots.txt', 'icons/*.png'],
+    srcDir:'src',
+    filename:"sw.ts",
+    strategies: 'injectManifest',
+    injectRegister: 'auto',
+    includeAssets: ['favicon.ico', 'robots.txt','offline.html', 'icons/*.png'],
     manifest: {
       "name": "Aplicacion Web Progresiva de Mensajes",
       "short_name": "App Mensajes",

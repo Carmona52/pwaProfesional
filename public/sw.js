@@ -1,10 +1,3 @@
-/* eslint-disable no-restricted-globals */
-import { clientsClaim } from 'workbox-core';
-import { precacheAndRoute } from 'workbox-precaching';
-
-clientsClaim();
-precacheAndRoute(self.__WB_MANIFEST || []);
-
 const CACHE_APP_SHELL = 'app-shell-v1';
 const CACHE_IMAGES = 'images-v1';
 const CACHE_API = 'api-v1';
@@ -19,6 +12,17 @@ async function trimCache(cacheName, maxItems) {
   }
 }
 
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_APP_SHELL).then(cache => cache.addAll([OFFLINE_URL]))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -26,13 +30,12 @@ self.addEventListener('fetch', (event) => {
   if (request.mode === 'navigate') {
     event.respondWith((async () => {
       try {
-        const networkResponse = await fetch(request);
+        const response = await fetch(request);
         const cache = await caches.open(CACHE_APP_SHELL);
-        cache.put(request, networkResponse.clone());
-        return networkResponse;
+        cache.put(request, response.clone());
+        return response;
       } catch {
-        const cached = await caches.match(request);
-        return cached || await caches.match(OFFLINE_URL);
+        return await caches.match(request) || await caches.match(OFFLINE_URL);
       }
     })());
     return;
@@ -42,62 +45,14 @@ self.addEventListener('fetch', (event) => {
     event.respondWith((async () => {
       const cache = await caches.open(CACHE_IMAGES);
       const cached = await cache.match(request);
-      const networkFetch = fetch(request).then(async (networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
-          cache.put(request, networkResponse.clone());
+      const networkFetch = fetch(request).then(async res => {
+        if (res && res.status === 200) {
+          cache.put(request, res.clone());
           trimCache(CACHE_IMAGES, 60);
         }
-        return networkResponse;
+        return res;
       }).catch(() => null);
-
       return cached || (await networkFetch) || (await caches.match(OFFLINE_URL));
-    })());
-    return;
-  }
-
-  if (
-    url.pathname.startsWith('/api') ||
-    url.hostname.includes('firestore.googleapis.com') ||
-    url.pathname.startsWith('/mensajes')
-  ) {
-    event.respondWith((async () => {
-      try {
-        const networkResponse = await fetch(request);
-        const cache = await caches.open(CACHE_API);
-        if (networkResponse && networkResponse.status === 200) {
-          cache.put(request, networkResponse.clone());
-          trimCache(CACHE_API, 100);
-        }
-        return networkResponse;
-      } catch {
-        const cached = await caches.match(request);
-        return cached || new Response(JSON.stringify({ error: 'offline' }), {
-          status: 503,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-    })());
-    return;
-  }
-
-  if (
-    request.destination === 'script' ||
-    request.destination === 'style' ||
-    /\.(?:js|css|woff2?|ttf)$/.test(url.pathname)
-  ) {
-    event.respondWith((async () => {
-      const cache = await caches.open(CACHE_APP_SHELL);
-      const cached = await cache.match(request);
-      if (cached) return cached;
-      try {
-        const networkResponse = await fetch(request);
-        if (networkResponse && networkResponse.status === 200) {
-          cache.put(request, networkResponse.clone());
-        }
-        return networkResponse;
-      } catch {
-        return await caches.match(OFFLINE_URL);
-      }
     })());
     return;
   }
@@ -106,8 +61,7 @@ self.addEventListener('fetch', (event) => {
     try {
       return await fetch(request);
     } catch {
-      const cached = await caches.match(request);
-      return cached || (await caches.match(OFFLINE_URL));
+      return await caches.match(request) || await caches.match(OFFLINE_URL);
     }
   })());
 });

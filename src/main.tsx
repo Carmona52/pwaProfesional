@@ -10,9 +10,10 @@ createRoot(document.getElementById('root')!).render(
 )
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.ready.then((registration) => {
-    console.log('Service Worker listo y registrado:', registration);
-  });
+  navigator.serviceWorker.register('/sw.js', { type: 'module' })
+    .then(reg => console.log('SW registrado:', reg))
+    .catch(err => console.error('Error registrando SW:', err));
+
 
   navigator.serviceWorker.addEventListener('message', async (event) => {
     if (event.data?.type === 'SYNC_MESSAGES') {

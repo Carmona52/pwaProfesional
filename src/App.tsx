@@ -57,7 +57,12 @@ function App() {
         // Registrar sincronización en segundo plano
         if ('serviceWorker' in navigator && 'SyncManager' in window) {
           const reg = await navigator.serviceWorker.ready;
-          await reg.sync.register('sync-messages');
+          if ((reg as any).sync) {
+            await (reg as any).sync.register('sync-messages');
+            console.log('Sincronización registrada: sync-messages');
+          } else {
+            console.warn('Background Sync no soportado');
+          }
           console.log('Sincronización registrada: sync-messages');
         } else {
           console.warn('Background Sync no soportado');

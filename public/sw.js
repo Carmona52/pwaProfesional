@@ -2,8 +2,6 @@
 import { clientsClaim } from 'workbox-core';
 import { precacheAndRoute } from 'workbox-precaching';
 
-declare const self: ServiceWorkerGlobalScope;
-
 clientsClaim();
 precacheAndRoute(self.__WB_MANIFEST || []);
 
@@ -12,7 +10,7 @@ const CACHE_IMAGES = 'images-v1';
 const CACHE_API = 'api-v1';
 const OFFLINE_URL = '/offline.html';
 
-async function trimCache(cacheName: string, maxItems: number): Promise<void> {
+async function trimCache(cacheName, maxItems) {
   const cache = await caches.open(cacheName);
   const keys = await cache.keys();
   if (keys.length > maxItems) {
@@ -21,7 +19,7 @@ async function trimCache(cacheName: string, maxItems: number): Promise<void> {
   }
 }
 
-self.addEventListener('fetch', (event: FetchEvent) => {
+self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
@@ -34,7 +32,7 @@ self.addEventListener('fetch', (event: FetchEvent) => {
         return networkResponse;
       } catch {
         const cached = await caches.match(request);
-        return cached || (await caches.match(OFFLINE_URL)) as Response;
+        return cached || await caches.match(OFFLINE_URL);
       }
     })());
     return;
@@ -98,7 +96,7 @@ self.addEventListener('fetch', (event: FetchEvent) => {
         }
         return networkResponse;
       } catch {
-        return (await caches.match(OFFLINE_URL)) as Response;
+        return await caches.match(OFFLINE_URL);
       }
     })());
     return;
